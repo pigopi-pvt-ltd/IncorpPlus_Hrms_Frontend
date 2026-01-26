@@ -45,6 +45,11 @@ const Sidebar = ({ onCollapseChange }) => {
     const adminItems = [
       { icon: Building, label: "Organizations", path: "/admin/organizations" },
       { icon: Users, label: "All Users", path: "/admin/users" },
+      {
+        icon: FileText,
+        label: "Document Requirements",
+        path: "/admin/document-requirements",
+      },
       { icon: Settings, label: "System Settings", path: "/admin/settings" },
       { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
       { icon: PieChart, label: "Reports", path: "/admin/reports" },
@@ -61,6 +66,11 @@ const Sidebar = ({ onCollapseChange }) => {
         icon: Building,
         label: "Organization",
         path: "/super-admin/organization",
+      },
+      {
+        icon: FileText,
+        label: "Document Requirements",
+        path: "/super-admin/document-requirements",
       },
       { icon: BarChart3, label: "Reports", path: "/super-admin/reports" },
       { icon: PieChart, label: "Analytics", path: "/super-admin/analytics" },

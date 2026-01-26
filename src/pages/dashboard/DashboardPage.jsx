@@ -1,5 +1,6 @@
 import { useAuth } from "../../contexts/AuthContext"
 import MainLayout from "../../components/layout/MainLayout"
+import SuperAdminDashboard from "../admin/SuperAdminDashboard"
 import {
   Users,
   Building,
@@ -294,16 +295,7 @@ const DashboardPage = () => {
     if (isGlobalAdmin()) {
       return renderGlobalAdminDashboard()
     } else if (isSuperAdmin()) {
-      return (
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Super Admin Dashboard
-          </h2>
-          <p className="text-slate-600">
-            Dashboard content for Super Admin users
-          </p>
-        </div>
-      )
+      return <SuperAdminDashboard />
     } else if (isHR()) {
       return (
         <div className="text-center py-12">

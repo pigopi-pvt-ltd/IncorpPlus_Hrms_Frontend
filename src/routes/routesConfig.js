@@ -17,6 +17,9 @@ const SuperAdminDashboard = lazy(() =>
   import("../pages/admin/SuperAdminDashboard")
 )
 const RegisterHRPage = lazy(() => import("../pages/admin/RegisterHRPage"))
+const DocumentRequirementsPage = lazy(() =>
+  import("../pages/admin/DocumentRequirementsPage")
+)
 
 // HR Pages
 const HRDashboard = lazy(() => import("../pages/hr/HRDashboard"))
@@ -77,6 +80,11 @@ export const routes = [
     element: UsersManagementPage,
     allowedRoles: [ROLES.GLOBAL_ADMIN],
   },
+  {
+    path: "/admin/document-requirements",
+    element: DocumentRequirementsPage,
+    allowedRoles: [ROLES.GLOBAL_ADMIN],
+  },
 
   // Super Admin routes
   {
@@ -93,6 +101,11 @@ export const routes = [
     path: "/super-admin/users",
     element: UsersManagementPage,
     allowedRoles: [ROLES.SUPER_ADMIN],
+  },
+  {
+    path: "/super-admin/document-requirements",
+    element: DocumentRequirementsPage,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.GLOBAL_ADMIN],
   },
 
   // HR routes
