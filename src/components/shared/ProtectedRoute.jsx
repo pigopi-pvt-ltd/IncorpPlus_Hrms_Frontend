@@ -22,6 +22,11 @@ const ProtectedRoute = ({ children, allowedRoles = [ROLES.EMPLOYEE] }) => {
 
   // Check role-based access
   if (!canAccessRoute(allowedRoles)) {
+    console.log("User cannot access route", {
+      allowedRoles,
+      userRole: state.role,
+      isAuthenticated: state.isAuthenticated,
+    })
     // Redirect to appropriate dashboard based on user role
     const redirectTo = getDashboardRedirect()
     return <Navigate to={redirectTo} replace />
@@ -33,19 +38,24 @@ const ProtectedRoute = ({ children, allowedRoles = [ROLES.EMPLOYEE] }) => {
 // Helper function to get dashboard redirect based on role
 const getDashboardRedirect = () => {
   const userData = localStorage.getItem("hrms_user")
+  console.log("User data from localStorage:", userData)
   if (userData) {
     try {
       const user = JSON.parse(userData)
+      console.log("Parsed user role:", user.role)
+      console.log("ROLES.HR:", ROLES.HR)
       switch (user.role) {
         case ROLES.GLOBAL_ADMIN:
           return "/admin/dashboard"
         case ROLES.SUPER_ADMIN:
           return "/super-admin/dashboard"
         case ROLES.HR:
+          console.log("Redirecting to HR dashboard")
           return "/hr/dashboard"
         case ROLES.EMPLOYEE:
           return "/employee/dashboard"
         default:
+          console.log("Unknown role, redirecting to login")
           return "/login"
       }
     } catch (error) {

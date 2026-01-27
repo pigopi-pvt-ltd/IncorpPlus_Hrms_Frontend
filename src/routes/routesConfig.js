@@ -20,11 +20,17 @@ const RegisterHRPage = lazy(() => import("../pages/admin/RegisterHRPage"))
 const DocumentRequirementsPage = lazy(() =>
   import("../pages/admin/DocumentRequirementsPage")
 )
+const MasterDataManagementPage = lazy(() =>
+  import("../pages/admin/MasterDataManagementPage")
+)
 
 // HR Pages
 const HRDashboard = lazy(() => import("../pages/hr/HRDashboard"))
 const EmployeeManagementPage = lazy(() =>
   import("../pages/hr/EmployeeManagementPage")
+)
+const RegisterEmployeePage = lazy(() =>
+  import("../pages/hr/RegisterEmployeePage")
 )
 const PayrollPage = lazy(() => import("../pages/hr/PayrollPage"))
 const LeaveRequestsPage = lazy(() => import("../pages/hr/LeaveRequestsPage"))
@@ -107,6 +113,11 @@ export const routes = [
     element: DocumentRequirementsPage,
     allowedRoles: [ROLES.SUPER_ADMIN, ROLES.GLOBAL_ADMIN],
   },
+  {
+    path: "/super-admin/master-data",
+    element: MasterDataManagementPage,
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.GLOBAL_ADMIN],
+  },
 
   // HR routes
   {
@@ -117,6 +128,11 @@ export const routes = [
   {
     path: "/hr/employees",
     element: EmployeeManagementPage,
+    allowedRoles: [ROLES.HR],
+  },
+  {
+    path: "/hr/register-employee",
+    element: RegisterEmployeePage,
     allowedRoles: [ROLES.HR],
   },
   {

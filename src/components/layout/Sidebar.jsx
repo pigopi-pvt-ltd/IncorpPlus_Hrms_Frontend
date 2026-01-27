@@ -20,6 +20,7 @@ import {
   Layers,
   PieChart,
   UsersRound,
+  Database,
 } from "lucide-react"
 
 const Sidebar = ({ onCollapseChange }) => {
@@ -40,7 +41,29 @@ const Sidebar = ({ onCollapseChange }) => {
 
   // Define navigation items based on roles
   const getNavItems = () => {
-    const commonItems = [{ icon: Home, label: "Dashboard", path: "/dashboard" }]
+    // Role-specific dashboard paths
+    const dashboardItems = {
+      Global_Admin: {
+        icon: Home,
+        label: "Dashboard",
+        path: "/admin/dashboard",
+      },
+      Super_Admin: {
+        icon: Home,
+        label: "Dashboard",
+        path: "/super-admin/dashboard",
+      },
+      HR: { icon: Home, label: "Dashboard", path: "/hr/dashboard" },
+      Employee: { icon: Home, label: "Dashboard", path: "/employee/dashboard" },
+    }
+
+    // Get the appropriate dashboard item based on user role
+    const userDashboardItem =
+      user?.role && dashboardItems[user.role]
+        ? dashboardItems[user.role]
+        : { icon: Home, label: "Dashboard", path: "/dashboard" } // fallback
+
+    const commonItems = [userDashboardItem]
 
     const adminItems = [
       { icon: Building, label: "Organizations", path: "/admin/organizations" },
@@ -71,6 +94,11 @@ const Sidebar = ({ onCollapseChange }) => {
         icon: FileText,
         label: "Document Requirements",
         path: "/super-admin/document-requirements",
+      },
+      {
+        icon: Database,
+        label: "Master Data",
+        path: "/super-admin/master-data",
       },
       { icon: BarChart3, label: "Reports", path: "/super-admin/reports" },
       { icon: PieChart, label: "Analytics", path: "/super-admin/analytics" },

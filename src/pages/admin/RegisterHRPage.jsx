@@ -154,28 +154,112 @@ const RegisterHRPage = () => {
 
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    mobile: "",
-    password: "",
     firstName: "",
     lastName: "",
-    role: "HR", // Always HR for this form
-    organizationId: user?.organizationId?._id || user?.organizationId || "", // Hidden field, populated from user context - use _id if available
+    email: "",
+    mobile: "",
+    countryCode: "+91",
+    username: "",
+    password: "",
     location: "",
-    countryCode: "+91", // Default to India
-    department: "",
-    designation: "",
+    department: "", // Will be dropdown
+    designation: "", // Will be dropdown
     dateOfJoining: "",
-    address: "",
     reportingManager: "",
+    address: "",
     emergencyContact: "",
   })
 
+  const [departments, setDepartments] = useState([])
+  const [designations, setDesignations] = useState([])
+  const [filteredDesignations, setFilteredDesignations] = useState([])
+
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [documentRequirements, setDocumentRequirements] = useState([])
 
   const totalSteps = 4
+
+  useEffect(() => {
+    loadDocumentRequirements()
+    loadMasterData()
+  }, [user, token])
+
+  const loadMasterData = async () => {
+    if (!user?.organizationId) return
+
+    try {
+      const orgId = user.organizationId?._id || user.organizationId
+
+      // Load departments
+      const deptResponse = await axios.get(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }api/masterdata/organizations/${orgId}/departments?includeInactive=false`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (deptResponse.data.success) {
+        setDepartments(deptResponse.data.departments || [])
+      }
+
+      // Load designations
+      const desigResponse = await axios.get(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }api/masterdata/organizations/${orgId}/designations?includeInactive=false`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (desigResponse.data.success) {
+        setDesignations(desigResponse.data.designations || [])
+      }
+    } catch (error) {
+      console.error("Error loading master data:", error)
+      toast.error("Failed to load master data")
+    }
+  }
+
+  const loadDocumentRequirements = async () => {
+    if (!user?.organizationId) return
+
+    setIsLoading(true)
+    try {
+      const orgId = user.organizationId?._id || user.organizationId
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }api/documents/organization/${orgId}/requirements`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (response.data.success) {
+        setDocumentRequirements(response.data.documentRequirements || [])
+      } else {
+        toast.error(
+          response.data.message || "Failed to load document requirements"
+        )
+      }
+    } catch (error) {
+      console.error("Error loading document requirements:", error)
+      toast.error("Failed to load document requirements")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const validateStep = (stepNumber) => {
     let isValid = true
@@ -271,20 +355,30 @@ const RegisterHRPage = () => {
     if (step > 1) setStep(step - 1)
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [field]: value,
     }))
 
+    // Filter designations when department changes
+    if (field === "department") {
+      const filtered = designations.filter(
+        (designation) =>
+          designation.departmentId?.id === value ||
+          designation.departmentId === value
+      )
+      setFilteredDesignations(filtered)
+      // Clear designation if department changes
+      setFormData((prev) => ({ ...prev, designation: "" }))
+    }
+
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[name]
-        return newErrors
-      })
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }))
     }
   }
 
@@ -409,7 +503,9 @@ const RegisterHRPage = () => {
                   id="firstName"
                   name="firstName"
                   value={formData.firstName}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("firstName", e.target.value)
+                  }
                   required
                   placeholder="Enter first name"
                   className={errors.firstName ? "border-red-500" : ""}
@@ -425,7 +521,9 @@ const RegisterHRPage = () => {
                   id="lastName"
                   name="lastName"
                   value={formData.lastName}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("lastName", e.target.value)
+                  }
                   required
                   placeholder="Enter last name"
                   className={errors.lastName ? "border-red-500" : ""}
@@ -442,7 +540,7 @@ const RegisterHRPage = () => {
                   name="email"
                   type="email"
                   value={formData.email}
-                  onChange={handleChange}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   required
                   placeholder="Enter email address"
                   className={errors.email ? "border-red-500" : ""}
@@ -458,7 +556,7 @@ const RegisterHRPage = () => {
                   id="mobile"
                   name="mobile"
                   value={formData.mobile}
-                  onChange={handleChange}
+                  onChange={(e) => handleInputChange("mobile", e.target.value)}
                   required
                   placeholder="Enter mobile number"
                   className={errors.mobile ? "border-red-500" : ""}
@@ -498,7 +596,9 @@ const RegisterHRPage = () => {
                   id="username"
                   name="username"
                   value={formData.username}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
                   required
                   placeholder="Enter username"
                   className={errors.username ? "border-red-500" : ""}
@@ -515,7 +615,9 @@ const RegisterHRPage = () => {
                   name="password"
                   type="password"
                   value={formData.password}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   required
                   placeholder="Enter password"
                   className={errors.password ? "border-red-500" : ""}
@@ -533,7 +635,9 @@ const RegisterHRPage = () => {
                   id="location"
                   name="location"
                   value={formData.location}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("location", e.target.value)
+                  }
                   required
                   placeholder="Enter location"
                   className={errors.location ? "border-red-500" : ""}
@@ -555,25 +659,64 @@ const RegisterHRPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
+                <Label htmlFor="department">Department *</Label>
+                <select
                   id="department"
-                  name="department"
                   value={formData.department}
-                  onChange={handleChange}
-                  placeholder="Enter department"
-                />
+                  onChange={(e) =>
+                    handleInputChange("department", e.target.value)
+                  }
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${
+                    errors.department ? "border-red-500" : "border-slate-300"
+                  }`}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.department && (
+                  <p className="text-red-500 text-sm">{errors.department}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="designation">Designation</Label>
-                <Input
+                <Label htmlFor="designation">Designation *</Label>
+                <select
                   id="designation"
-                  name="designation"
                   value={formData.designation}
-                  onChange={handleChange}
-                  placeholder="Enter designation"
-                />
+                  onChange={(e) =>
+                    handleInputChange("designation", e.target.value)
+                  }
+                  disabled={!formData.department}
+                  className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${
+                    errors.designation ? "border-red-500" : "border-slate-300"
+                  } ${
+                    !formData.department
+                      ? "bg-slate-100 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  <option value="">Select Designation</option>
+                  {(formData.department
+                    ? filteredDesignations
+                    : designations
+                  ).map((desig) => (
+                    <option key={desig.id} value={desig.id}>
+                      {desig.name} {desig.level && `(Level ${desig.level})`}
+                    </option>
+                  ))}
+                </select>
+                {!formData.department && (
+                  <p className="text-slate-500 text-sm">
+                    Please select a department first
+                  </p>
+                )}
+                {errors.designation && (
+                  <p className="text-red-500 text-sm">{errors.designation}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -583,7 +726,9 @@ const RegisterHRPage = () => {
                   name="dateOfJoining"
                   type="date"
                   value={formData.dateOfJoining}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("dateOfJoining", e.target.value)
+                  }
                   placeholder="Select date"
                   className={errors.dateOfJoining ? "border-red-500" : ""}
                 />
@@ -598,7 +743,9 @@ const RegisterHRPage = () => {
                   id="reportingManager"
                   name="reportingManager"
                   value={formData.reportingManager}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("reportingManager", e.target.value)
+                  }
                   placeholder="Enter reporting manager"
                 />
               </div>
@@ -620,7 +767,7 @@ const RegisterHRPage = () => {
                   id="address"
                   name="address"
                   value={formData.address}
-                  onChange={handleChange}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                   placeholder="Enter full address"
                   rows={3}
                 />
@@ -632,7 +779,9 @@ const RegisterHRPage = () => {
                   id="emergencyContact"
                   name="emergencyContact"
                   value={formData.emergencyContact}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleInputChange("emergencyContact", e.target.value)
+                  }
                   placeholder="Enter emergency contact"
                   className={errors.emergencyContact ? "border-red-500" : ""}
                 />
