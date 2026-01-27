@@ -66,7 +66,7 @@ const LoginPage = () => {
         setTimeout(() => {
           switch (userRole) {
             case "Global_Admin":
-              navigate("/admin/dashboard")
+              navigate("/dashboard")
               break
             case "Super_Admin":
               navigate("/super-admin/dashboard")
