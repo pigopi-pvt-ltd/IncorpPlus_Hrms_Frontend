@@ -130,7 +130,7 @@ const MasterDataManagementPage = () => {
       const orgId = user.organizationId?._id || user.organizationId
       const url = editingDepartment
         ? `${import.meta.env.VITE_API_BASE_URL}api/masterdata/departments/${
-            editingDepartment.id
+            editingDepartment._id
           }`
         : `${import.meta.env.VITE_API_BASE_URL}api/masterdata/departments`
 
@@ -179,7 +179,7 @@ const MasterDataManagementPage = () => {
     try {
       const url = editingDesignation
         ? `${import.meta.env.VITE_API_BASE_URL}api/masterdata/designations/${
-            editingDesignation.id
+            editingDesignation._id
           }`
         : `${import.meta.env.VITE_API_BASE_URL}api/masterdata/designations`
 
@@ -235,7 +235,7 @@ const MasterDataManagementPage = () => {
       name: designation.name,
       code: designation.code,
       description: designation.description || "",
-      departmentId: designation.departmentId?.id || designation.departmentId,
+      departmentId: designation.departmentId?._id || designation.departmentId,
       level: designation.level?.toString() || "",
     })
   }
@@ -325,7 +325,7 @@ const MasterDataManagementPage = () => {
   const getDesignationsByDepartment = (deptId) => {
     return designations.filter(
       (designation) =>
-        designation.departmentId?.id === deptId ||
+        designation.departmentId?._id === deptId ||
         designation.departmentId === deptId
     )
   }
@@ -537,7 +537,7 @@ const MasterDataManagementPage = () => {
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {departments.map((department) => (
                       <div
-                        key={department.id}
+                        key={department._id}
                         className="border border-slate-200 rounded-lg bg-white"
                       >
                         <div className="p-4">
@@ -567,7 +567,7 @@ const MasterDataManagementPage = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() =>
-                                  handleDeleteDepartment(department.id)
+                                  handleDeleteDepartment(department._id)
                                 }
                                 className="text-red-600 border-red-300 hover:bg-red-50"
                               >
@@ -761,7 +761,7 @@ const MasterDataManagementPage = () => {
                           >
                             <option value="">Select Department</option>
                             {departments.map((dept) => (
-                              <option key={dept.id} value={dept.id}>
+                              <option key={dept._id} value={dept._id}>
                                 {dept.name}
                               </option>
                             ))}
@@ -796,19 +796,19 @@ const MasterDataManagementPage = () => {
                   <div className="space-y-4 max-h-96 overflow-y-auto">
                     {departments.map((department) => {
                       const deptDesignations = getDesignationsByDepartment(
-                        department.id
+                        department._id
                       )
-                      const isExpanded = expandedDepartments.has(department.id)
+                      const isExpanded = expandedDepartments.has(department._id)
 
                       return (
                         <div
-                          key={department.id}
+                          key={department._id}
                           className="border border-slate-200 rounded-lg bg-white"
                         >
                           <div
                             className="p-4 cursor-pointer flex items-center justify-between hover:bg-slate-50"
                             onClick={() =>
-                              toggleDepartmentExpansion(department.id)
+                              toggleDepartmentExpansion(department._id)
                             }
                           >
                             <div>
@@ -835,7 +835,7 @@ const MasterDataManagementPage = () => {
                               ) : (
                                 deptDesignations.map((designation) => (
                                   <div
-                                    key={designation.id}
+                                    key={designation._id}
                                     className="flex items-center justify-between p-3 bg-slate-50 rounded"
                                   >
                                     <div>
@@ -871,7 +871,7 @@ const MasterDataManagementPage = () => {
                                         variant="outline"
                                         onClick={() =>
                                           handleDeleteDesignation(
-                                            designation.id
+                                            designation._id
                                           )
                                         }
                                         className="text-red-600 border-red-300 hover:bg-red-50"

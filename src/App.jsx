@@ -7,6 +7,7 @@ import {
 } from "react-router-dom"
 import { useAuth } from "./contexts/AuthContext"
 import ProtectedRoute from "./components/shared/ProtectedRoute"
+import RoleBasedRedirect from "./components/shared/RoleBasedRedirect"
 import { routes } from "./routes/routesConfig"
 import { Toaster } from "./components/ui/toast"
 import { ThemeProvider } from "./contexts/ThemeContext"
@@ -23,7 +24,7 @@ const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useAuth()
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    return <RoleBasedRedirect />
   }
 
   return children
@@ -74,8 +75,8 @@ function App() {
               )
             })}
 
-            {/* Catch-all route - redirect to appropriate dashboard */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Catch-all route - redirect to appropriate dashboard based on role */}
+            <Route path="*" element={<RoleBasedRedirect />} />
           </Routes>
           {/* Toast Provider */}
           <Toaster position="top-right" richColors />

@@ -58,16 +58,11 @@ export const routes = [
     isPublic: true,
   },
 
-  // Protected routes - Dashboard variations
+  // Protected routes - Generic dashboard as fallback
   {
     path: "/dashboard",
     element: DashboardPage,
-    allowedRoles: [
-      ROLES.EMPLOYEE,
-      ROLES.HR,
-      ROLES.SUPER_ADMIN,
-      ROLES.GLOBAL_ADMIN,
-    ],
+    allowedRoles: [ROLES.EMPLOYEE], // Only for employees as fallback, others go to role-specific dashboards
   },
 
   // Admin routes
