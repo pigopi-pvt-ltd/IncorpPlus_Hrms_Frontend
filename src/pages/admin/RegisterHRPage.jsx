@@ -476,11 +476,30 @@ const RegisterHRPage = () => {
       // navigate("/super-admin/users");
     } catch (error) {
       console.error("Registration error:", error)
-      toast.error(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to register HR user"
-      )
+      // Handle different types of errors
+      let errorMessage = "Failed to register HR user"
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message
+        } else if (error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error
+        } else if (Array.isArray(error.response.data?.errors)) {
+          errorMessage = error.response.data.errors
+            .map((err) => err.msg || err.message || err)
+            .join(", ")
+        } else {
+          errorMessage = `Server Error: ${error.response.status} - ${error.response.statusText}`
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage =
+          "Network error: Unable to connect to server. Please check your connection."
+      } else {
+        // Something else happened
+        errorMessage = error.message || "An unexpected error occurred"
+      }
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

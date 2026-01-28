@@ -275,13 +275,57 @@ const RegisterEmployeePage = () => {
         setErrors({})
         setCurrentStep(1)
       } else {
-        toast.error(response.data.message || "Failed to register employee")
+        // Handle different error response formats
+        let errorMessage = "Failed to register employee"
+        if (response.data.message) {
+          errorMessage = response.data.message
+        } else if (response.data.error) {
+          errorMessage = response.data.error
+        } else if (Array.isArray(response.data.errors)) {
+          // Handle validation errors array
+          errorMessage = response.data.errors
+            .map((err) => err.msg || err.message || err)
+            .join(", ")
+        } else if (typeof response.data === "object") {
+          // Extract any error-like properties
+          const errorKeys = Object.keys(response.data).filter(
+            (key) =>
+              key.toLowerCase().includes("error") ||
+              key.toLowerCase().includes("message")
+          )
+          if (errorKeys.length > 0) {
+            errorMessage = response.data[errorKeys[0]]
+          }
+        }
+        toast.error(errorMessage)
       }
     } catch (error) {
       console.error("Error registering employee:", error)
-      toast.error(
+      // Handle different types of errors
+      let errorMessage =
         "Failed to register employee. Please check all fields are correct."
-      )
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message
+        } else if (error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error
+        } else if (Array.isArray(error.response.data?.errors)) {
+          errorMessage = error.response.data.errors
+            .map((err) => err.msg || err.message || err)
+            .join(", ")
+        } else {
+          errorMessage = `Server Error: ${error.response.status} - ${error.response.statusText}`
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage =
+          "Network error: Unable to connect to server. Please check your connection."
+      } else {
+        // Something else happened
+        errorMessage = error.message || "An unexpected error occurred"
+      }
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
