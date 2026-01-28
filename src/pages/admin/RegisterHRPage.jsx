@@ -186,6 +186,21 @@ const RegisterHRPage = () => {
     loadMasterData()
   }, [user, token])
 
+  useEffect(() => {
+    // Update filtered designations when department changes
+    if (formData.department && designations.length > 0) {
+      const filtered = designations.filter(
+        (desig) =>
+          desig.departmentId === formData.department ||
+          desig.departmentId?._id === formData.department ||
+          desig.departmentId?.id === formData.department
+      )
+      setFilteredDesignations(filtered)
+    } else {
+      setFilteredDesignations([])
+    }
+  }, [formData.department, designations])
+
   const loadMasterData = async () => {
     if (!user?.organizationId) return
 
@@ -430,7 +445,7 @@ const RegisterHRPage = () => {
           firstName: formData.firstName,
           lastName: formData.lastName,
           role: "HR", // Always HR for this form
-          organizationId: formData.organizationId, // This is automatically set from user context
+          organizationId: user?.organizationId?._id || user?.organizationId, // Automatically set from user context using _id
           location: formData.location,
           countryCode: formData.countryCode,
           department: formData.department,
@@ -459,7 +474,6 @@ const RegisterHRPage = () => {
         firstName: "",
         lastName: "",
         role: "HR", // Always HR for this form
-        organizationId: user?.organizationId?._id || user?.organizationId || "", // Reset to user's org - use _id if available
         location: "",
         countryCode: "+91", // Reset to default
         department: "",
@@ -691,7 +705,7 @@ const RegisterHRPage = () => {
                 >
                   <option value="">Select Department</option>
                   {departments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
+                    <option key={dept._id} value={dept._id}>
                       {dept.name}
                     </option>
                   ))}
@@ -723,7 +737,7 @@ const RegisterHRPage = () => {
                     ? filteredDesignations
                     : designations
                   ).map((desig) => (
-                    <option key={desig.id} value={desig.id}>
+                    <option key={desig._id} value={desig._id}>
                       {desig.name} {desig.level && `(Level ${desig.level})`}
                     </option>
                   ))}

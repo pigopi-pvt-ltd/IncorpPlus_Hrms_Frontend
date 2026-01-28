@@ -35,6 +35,12 @@ const RegisterEmployeePage = () => {
     state: "",
     zipCode: "",
 
+    // Account Information
+    username: "",
+    password: "",
+    confirmPassword: "",
+    location: "",
+
     // Employment Information
     employeeId: "",
     department: "", // Will be dropdown
@@ -57,9 +63,10 @@ const RegisterEmployeePage = () => {
 
   const steps = [
     { id: 1, title: "Personal Information", icon: UserPlus },
-    { id: 2, title: "Employment Details", icon: Briefcase },
-    { id: 3, title: "Emergency Contact", icon: Phone },
-    { id: 4, title: "Review & Submit", icon: CheckCircle },
+    { id: 2, title: "Account Information", icon: UserPlus },
+    { id: 3, title: "Employment Details", icon: Briefcase },
+    { id: 4, title: "Emergency Contact", icon: Phone },
+    { id: 5, title: "Review & Submit", icon: CheckCircle },
   ]
 
   useEffect(() => {
@@ -125,6 +132,8 @@ const RegisterEmployeePage = () => {
         }
         if (!formData.mobile.trim())
           newErrors.mobile = "Mobile number is required"
+        else if (!/^\d{10}$/.test(formData.mobile.trim()))
+          newErrors.mobile = "Mobile number must be exactly 10 digits"
         if (!formData.dateOfBirth)
           newErrors.dateOfBirth = "Date of birth is required"
         if (!formData.gender) newErrors.gender = "Gender is required"
@@ -134,7 +143,16 @@ const RegisterEmployeePage = () => {
         if (!formData.zipCode.trim()) newErrors.zipCode = "ZIP code is required"
         break
 
-      case 2: // Employment Information
+      case 2: // Account Information
+        if (!formData.username.trim())
+          newErrors.username = "Username is required"
+        if (!formData.password.trim())
+          newErrors.password = "Password is required"
+        if (formData.password !== formData.confirmPassword)
+          newErrors.confirmPassword = "Passwords do not match"
+        break
+
+      case 3: // Employment Information
         if (!formData.employeeId.trim())
           newErrors.employeeId = "Employee ID is required"
         if (!formData.department.trim())
@@ -148,7 +166,7 @@ const RegisterEmployeePage = () => {
         if (!formData.salary.trim()) newErrors.salary = "Salary is required"
         break
 
-      case 3: // Emergency Contact
+      case 4: // Emergency Contact
         if (!formData.emergencyContactName.trim())
           newErrors.emergencyContactName = "Emergency contact name is required"
         if (!formData.emergencyContactPhone.trim())
@@ -177,6 +195,7 @@ const RegisterEmployeePage = () => {
     if (field === "department") {
       const filtered = designations.filter(
         (designation) =>
+          designation.departmentId?._id === value ||
           designation.departmentId?.id === value ||
           designation.departmentId === value
       )
@@ -221,16 +240,16 @@ const RegisterEmployeePage = () => {
 
       // Prepare form data according to API specification
       const submissionData = {
-        username: `${formData.firstName.toLowerCase()}.${formData.lastName.toLowerCase()}`, // Generate username
+        username: formData.username,
         email: formData.email,
         mobile: formData.mobile,
         countryCode: "+91", // Default to India, can be made configurable
-        password: "SecurePassword123!", // Default password, should be changed by employee
+        password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
         role: "Employee", // Hardcoded as per API spec
         organizationId: orgId,
-        location: `${formData.city}, ${formData.state}`, // Combine city and state
+        location: formData.location,
         department: formData.department,
         designation: formData.position,
         dateOfJoining: formData.joiningDate,
@@ -262,6 +281,10 @@ const RegisterEmployeePage = () => {
           city: "",
           state: "",
           zipCode: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
+          location: "",
           employeeId: "",
           department: "",
           position: "",
@@ -483,6 +506,54 @@ const RegisterEmployeePage = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => handleInputChange("username", e.target.value)}
+                className={errors.username ? "border-red-500" : ""}
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm">{errors.username}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                className={errors.password ? "border-red-500" : ""}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm">{errors.password}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  handleInputChange("confirmPassword", e.target.value)
+                }
+                className={errors.confirmPassword ? "border-red-500" : ""}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+              )}
+            </div>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
               <Label htmlFor="employeeId">Employee ID *</Label>
               <Input
                 id="employeeId"
@@ -511,7 +582,7 @@ const RegisterEmployeePage = () => {
               >
                 <option value="">Select Department</option>
                 {departments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>
+                  <option key={dept._id} value={dept._id}>
                     {dept.name}
                   </option>
                 ))}
@@ -539,7 +610,7 @@ const RegisterEmployeePage = () => {
                   ? filteredDesignations
                   : designations
                 ).map((desig) => (
-                  <option key={desig.id} value={desig.id}>
+                  <option key={desig._id} value={desig._id}>
                     {desig.name} {desig.level && `(Level ${desig.level})`}
                   </option>
                 ))}
@@ -609,7 +680,7 @@ const RegisterEmployeePage = () => {
           </div>
         )
 
-      case 3:
+      case 4:
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
@@ -667,7 +738,7 @@ const RegisterEmployeePage = () => {
           </div>
         )
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <div className="bg-slate-50 rounded-lg p-6">
