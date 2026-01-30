@@ -21,6 +21,7 @@ import {
   PieChart,
   UsersRound,
   Database,
+  Clock,
 } from "lucide-react"
 
 const Sidebar = ({ onCollapseChange }) => {
@@ -91,6 +92,11 @@ const Sidebar = ({ onCollapseChange }) => {
         path: "/super-admin/organization",
       },
       {
+        icon: Settings,
+        label: "Organization Config",
+        path: "/super-admin/organization-configuration",
+      },
+      {
         icon: FileText,
         label: "Document Requirements",
         path: "/super-admin/document-requirements",
@@ -111,6 +117,7 @@ const Sidebar = ({ onCollapseChange }) => {
         path: "/hr/register-employee",
       },
       { icon: UsersRound, label: "Employee Management", path: "/hr/employees" },
+      { icon: Clock, label: "Attendance Management", path: "/hr/attendance" },
       { icon: DollarSign, label: "Payroll", path: "/hr/payroll" },
       { icon: Calendar, label: "Leave Requests", path: "/hr/leave-requests" },
       { icon: FileText, label: "Reports", path: "/hr/reports" },
